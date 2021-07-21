@@ -1,0 +1,61 @@
+========================Apex class=================
+global class Expense_Approval {
+   global list<Expense_Line_Item__c> explinelist ;
+    
+    global id currentid { set; get;}
+      global Expense__c account{
+        get {
+          account = [Select Id, name from Expense__c where id =: currentid];
+          return account; }
+       set;
+    }
+    global Expense_Approval(){
+            
+    }
+
+     global List<Expense_Line_Item__c> Oppss{
+        get{        
+            explinelist = new List<Expense_Line_Item__c>();
+            List<Expense_Line_Item__c> oppList = [select id,name,Date__c,Account__c,Item_Data__c,Amount__c,Corrected_Amount__c,
+                                                  Expense__c from Expense_Line_Item__c where Expense__c=:currentid];
+            for(Expense_Line_Item__c e:oppList){
+                explinelist.add(e);
+            }
+              
+            return explinelist;
+        }
+        set;
+    }
+     global String NewLine {
+        get { return '\r\n'; }
+        set;
+    }
+}
+========================Apex Test Class=========================
+@isTest
+public class Expense_ApprovalTestCls {
+      public  static testmethod void Expense_Approvatest(){
+    Expense__c exp=new Expense__c();
+        exp.Remarks__c='test';
+       insert exp;
+        list<Expense_Line_Item__c> expline=new list<Expense_Line_Item__c>();
+        Expense_Line_Item__c expline1=new Expense_Line_Item__c();
+        expline1.Account__c='CONVEYANCE';
+        expline1.Expense__c=exp.Id;
+        expline.add(expline1);
+         Expense_Line_Item__c expline2=new Expense_Line_Item__c();
+        expline2.Account__c='CONVEYANCE';
+        expline2.Expense__c=exp.Id;
+        expline.add(expline2);
+       insert expline;
+        test.startTest();
+     Expense_Approval ex=new Expense_Approval();
+         ex.currentid=exp.Id;
+          Expense__c ep=ex.account;
+          list<Expense_Line_Item__c> eli=ex.Oppss;
+           string nl=ex.NewLine;
+        test.stopTest();
+      }
+
+}
+=======================================
